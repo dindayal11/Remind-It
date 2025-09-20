@@ -12,6 +12,14 @@
       background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
       color: #333;
       min-height: 100vh;
+      .reset-btn {
+  background: #ffc107;
+  color: #000;
+}
+.reset-btn:hover {
+  background: #e0a800;
+}
+
     }
 
     header {
@@ -184,6 +192,8 @@
       <input type="datetime-local" id="reminderTime">
       <button class="action" onclick="startVoice()">🎤 Speak</button>
       <button class="action" onclick="saveNote()">💾 Save Idea</button>
+      <button class="reset-btn" onclick="resetFields()">♻️ Reset</button>
+
     </div>
   </div>
 
@@ -207,6 +217,14 @@
       document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
       document.getElementById(id).classList.add("active");
     }
+    // ♻️ Reset all input fields
+function resetFields() {
+  document.getElementById("noteText").value = "";
+  document.getElementById("tags").value = "";
+  document.getElementById("reminderTime").value = "";
+  editIndex = -1;
+}
+
 
     // 🎤 Voice to Text
 function startVoice() {
@@ -357,6 +375,7 @@ function searchNotes() {
   </script>
 </body>
 </html>
+
 
 
 
