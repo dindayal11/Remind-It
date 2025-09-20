@@ -187,10 +187,10 @@
     </div>
   </div>
 
-<div id="ideas" class="page">
+ <div id="ideas" class="page">
   <h2>Your Ideas</h2>
   <!-- 🔍 Search Bar -->
-  <input type="text" id="searchInput" placeholder="Search your ideas...">
+  <input type="text" id="searchInput" placeholder="Search your ideas..." onkeyup="searchNotes()">
   <div id="notes"></div>
 </div>
 
@@ -271,14 +271,14 @@ function startVoice() {
 
       localStorage.setItem("notes", JSON.stringify(notes));
       displayNotes()
-  // 🔍 Search Function
+      // 🔍 Search Function
 function searchNotes() {
   let input = document.getElementById("searchInput").value.toLowerCase();
   let notesDiv = document.getElementById("notes");
   let noteCards = notesDiv.getElementsByClassName("note");
 
   for (let i = 0; i < noteCards.length; i++) {
-    let text = noteCards[i].innerText.toLowerCase(); // ✅ innerText better h
+    let text = noteCards[i].textContent.toLowerCase();
     if (text.includes(input)) {
       noteCards[i].style.display = "block";
     } else {
@@ -286,34 +286,6 @@ function searchNotes() {
     }
   }
 }
-
-// 🔄 Jab bhi notes display ho, search bar apply ho
-function displayNotes() {
-  let notesDiv = document.getElementById("notes");
-  let favDiv = document.getElementById("favs");
-  notesDiv.innerHTML = "";
-  favDiv.innerHTML = "";
-  notes.forEach((n, i) => {
-    let card = document.createElement("div");
-    card.className = "note";
-    card.innerHTML = 
-      <p>${n.text}</p>
-      <p class="tags">Tags: ${n.tags.join(", ") || "None"}</p>
-      <p class="tags">⏰ ${new Date(n.time).toLocaleString()}</p>
-      <button onclick="editNote(${i})">✏️ Edit</button>
-      <button onclick="toggleFav(${i})">${n.fav ? "⭐️ Unfavourite" : "☆ Favourite"}</button>
-      <button onclick="deleteNote(${i})">🗑 Delete</button>
-    ;
-    if (n.fav) favDiv.appendChild(card);
-    else notesDiv.appendChild(card);
-  });
-
-  // ✅ search bar ko dobara apply kar do
-  searchNotes();
-}
-
-// ✅ Input pe event listener lagao (onkeyup ki jagah JS se)
-document.getElementById("searchInput").addEventListener("keyup", searchNotes);
       document.getElementById("noteText").value="";
       document.getElementById("tags").value="";
       document.getElementById("reminderTime").value="";
@@ -385,7 +357,5 @@ document.getElementById("searchInput").addEventListener("keyup", searchNotes);
   </script>
 </body>
 </html>
-
-
 
 
