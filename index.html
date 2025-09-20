@@ -12,7 +12,6 @@
       background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
       color: #333;
       min-height: 100vh;
-      overflow-x: hidden;
     }
 
     header {
@@ -80,7 +79,7 @@
     }
 
     .card {
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.95);
       padding: 20px;
       margin: 15px auto;
       max-width: 600px;
@@ -152,6 +151,9 @@
   </style>
 </head>
 <body>
+  <!-- Notification Sound -->
+  <audio id="notifySound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3" preload="auto"></audio>
+
   <!-- Header -->
   <header>
     <img src="image/photo.png" alt="Logo">
@@ -168,10 +170,9 @@
 
   <!-- Pages -->
   <div id="home" class="page active">
-    <h2>Welcome to Ideas Notebook 🚀</h2>
+    <h2>Welcome 🚀</h2>
     <div class="card">
       <p>✨ Save your thoughts, set reminders, and never lose an idea again.</p>
-      <p>👉 Use the navigation above to add new notes or see your saved ideas.</p>
     </div>
   </div>
 
@@ -181,6 +182,7 @@
       <textarea id="noteText" placeholder="Write your idea..."></textarea>
       <input type="text" id="tags" placeholder="Tags (comma separated)">
       <input type="datetime-local" id="reminderTime">
+      <button class="action" onclick="startVoice()">🎤 Speak</button>
       <button class="action" onclick="saveNote()">💾 Save Idea</button>
     </div>
   </div>
@@ -197,12 +199,57 @@
 
   <script>
     let notes = JSON.parse(localStorage.getItem("notes") || "[]");
+    let editIndex = -1;
 
     function showPage(id) {
       document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
       document.getElementById(id).classList.add("active");
     }
 
+    // 🎤 Voice to Text
+function startVoice() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("❌ Speech Recognition not supported. Use Chrome/Edge.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-US";  // 👉 अगर हिंदी चाहिए तो "hi-IN" कर दो
+  recognition.interimResults = true; // live text आएगा
+  recognition.continuous = true;     // mic तब तक सुनता रहेगा जब तक manually बंद न करो
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    document.getElementById("noteText").value += "\n🎤 Listening...";
+  };
+
+  recognition.onresult = (event) => {
+    let transcript = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript + " ";
+    }
+    document.getElementById("noteText").value = transcript;
+  };
+
+  recognition.onerror = (event) => {
+    if (event.error === "no-speech") {
+      alert("⚠️ No speech detected. Please speak clearly into the mic.");
+    } else {
+      alert("⚠️ Error: " + event.error);
+    }
+  };
+
+  recognition.onend = () => {
+    console.log("🎤 Voice recognition stopped.");
+  };
+
+  recognition.start();
+}
+
+
+
+    // 💾 Save Note
     function saveNote() {
       let text = document.getElementById("noteText").value.trim();
       let tags = document.getElementById("tags").value.trim().split(",").map(t=>t.trim()).filter(Boolean);
@@ -211,8 +258,15 @@
       if(!text) return alert("Write something!");
       if(!time) return alert("Set a reminder!");
 
-      let note = { text, tags, time, fav: false };
-      notes.push(note);
+      if(editIndex === -1){
+        let note = { text, tags, time, fav: false };
+        notes.push(note);
+        scheduleReminder(note);
+      } else {
+        notes[editIndex] = { text, tags, time, fav: notes[editIndex].fav };
+        editIndex = -1;
+      }
+
       localStorage.setItem("notes", JSON.stringify(notes));
       displayNotes();
       document.getElementById("noteText").value="";
@@ -221,6 +275,21 @@
       alert("✅ Note saved!");
     }
 
+    // ⏰ Reminder Function
+    function scheduleReminder(note) {
+      let reminderTime = new Date(note.time).getTime();
+      let now = new Date().getTime();
+      let delay = reminderTime - now;
+      if (delay > 0) {
+        setTimeout(() => {
+          let sound = document.getElementById("notifySound");
+          sound.play();
+          alert("⏰ Reminder: " + note.text);
+        }, delay);
+      }
+    }
+
+    // 📌 Display Notes
     function displayNotes() {
       let notesDiv = document.getElementById("notes");
       let favDiv = document.getElementById("favs");
@@ -233,11 +302,22 @@
           <p>${n.text}</p>
           <p class="tags">Tags: ${n.tags.join(", ")||"None"}</p>
           <p class="tags">⏰ ${new Date(n.time).toLocaleString()}</p>
+          <button onclick="editNote(${i})">✏️ Edit</button>
           <button onclick="toggleFav(${i})">${n.fav?"⭐ Unfavourite":"☆ Favourite"}</button>
           <button onclick="deleteNote(${i})">🗑️ Delete</button>
         `;
         if(n.fav) favDiv.appendChild(card); else notesDiv.appendChild(card);
       });
+    }
+
+    // ✏️ Edit Note
+    function editNote(i){
+      let n = notes[i];
+      document.getElementById("noteText").value=n.text;
+      document.getElementById("tags").value=n.tags.join(", ");
+      document.getElementById("reminderTime").value=n.time;
+      showPage('add');
+      editIndex=i;
     }
 
     function toggleFav(i){
@@ -254,6 +334,8 @@
       }
     }
 
+    // Reload notes + re-schedule reminders
+    notes.forEach(n=>scheduleReminder(n));
     displayNotes();
   </script>
 </body>
