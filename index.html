@@ -187,10 +187,12 @@
     </div>
   </div>
 
-  <div id="ideas" class="page">
-    <h2>Your Ideas</h2>
-    <div id="notes"></div>
-  </div>
+ <div id="ideas" class="page">
+  <h2>Your Ideas</h2>
+  <!-- 🔍 Search Bar -->
+  <input type="text" id="searchInput" placeholder="Search your ideas..." onkeyup="searchNotes()">
+  <div id="notes"></div>
+</div>
 
   <div id="favourites" class="page">
     <h2>⭐ Favourite Ideas</h2>
@@ -268,7 +270,22 @@ function startVoice() {
       }
 
       localStorage.setItem("notes", JSON.stringify(notes));
-      displayNotes();
+      displayNotes()
+      // 🔍 Search Function
+function searchNotes() {
+  let input = document.getElementById("searchInput").value.toLowerCase();
+  let notesDiv = document.getElementById("notes");
+  let noteCards = notesDiv.getElementsByClassName("note");
+
+  for (let i = 0; i < noteCards.length; i++) {
+    let text = noteCards[i].textContent.toLowerCase();
+    if (text.includes(input)) {
+      noteCards[i].style.display = "block";
+    } else {
+      noteCards[i].style.display = "none";
+    }
+  }
+}
       document.getElementById("noteText").value="";
       document.getElementById("tags").value="";
       document.getElementById("reminderTime").value="";
@@ -340,5 +357,6 @@ function startVoice() {
   </script>
 </body>
 </html>
+
 
 
