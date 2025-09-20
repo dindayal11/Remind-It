@@ -12,14 +12,18 @@
       background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
       color: #333;
       min-height: 100vh;
-      .reset-btn {
-  background: #ffc107;
-  color: #000;
-}
-.reset-btn:hover {
-  background: #e0a800;
-}
+    }
 
+    .reset-btn {
+      background: #ffc107;
+      color: #000;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+    }
+    .reset-btn:hover {
+      background: #e0a800;
     }
 
     header {
@@ -143,6 +147,42 @@
       color: #555;
     }
 
+    /* Thumbnail images */
+    .note img {
+      max-width: 180px;
+      max-height: 150px;
+      border-radius: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .note img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Fullscreen overlay */
+    #imgOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.9);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #imgOverlay img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+    }
+    #imgOverlay span {
+      position: absolute;
+      top: 20px; right: 30px;
+      font-size: 40px;
+      color: #fff;
+      cursor: pointer;
+    }
+
     /* Animations */
     @keyframes fadeIn {
       from {opacity: 0; transform: translateY(20px);}
@@ -190,23 +230,28 @@
       <textarea id="noteText" placeholder="Write your idea..."></textarea>
       <input type="text" id="tags" placeholder="Tags (comma separated)">
       <input type="datetime-local" id="reminderTime">
+      <input type="file" id="noteImage" accept="image/*">
       <button class="action" onclick="startVoice()">🎤 Speak</button>
       <button class="action" onclick="saveNote()">💾 Save Idea</button>
       <button class="reset-btn" onclick="resetFields()">♻️ Reset</button>
-
     </div>
   </div>
 
- <div id="ideas" class="page">
-  <h2>Your Ideas</h2>
-  <!-- 🔍 Search Bar -->
-  <input type="text" id="searchInput" placeholder="Search your ideas..." onkeyup="searchNotes()">
-  <div id="notes"></div>
-</div>
+  <div id="ideas" class="page">
+    <h2>Your Ideas</h2>
+    <input type="text" id="searchInput" placeholder="Search your ideas..." onkeyup="searchNotes()">
+    <div id="notes"></div>
+  </div>
 
   <div id="favourites" class="page">
     <h2>⭐ Favourite Ideas</h2>
     <div id="favs"></div>
+  </div>
+
+  <!-- Fullscreen Image Overlay -->
+  <div id="imgOverlay" onclick="closeImage()">
+    <span>&times;</span>
+    <img id="fullImage" src="">
   </div>
 
   <script>
@@ -217,100 +262,72 @@
       document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
       document.getElementById(id).classList.add("active");
     }
-    // ♻️ Reset all input fields
-function resetFields() {
-  document.getElementById("noteText").value = "";
-  document.getElementById("tags").value = "";
-  document.getElementById("reminderTime").value = "";
-  editIndex = -1;
-}
 
-
-    // 🎤 Voice to Text
-function startVoice() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    alert("❌ Speech Recognition not supported. Use Chrome/Edge.");
-    return;
-  }
-
-  const recognition = new SpeechRecognition();
-  recognition.lang = "en-US";  // 👉 अगर हिंदी चाहिए तो "hi-IN" कर दो
-  recognition.interimResults = true; // live text आएगा
-  recognition.continuous = true;     // mic तब तक सुनता रहेगा जब तक manually बंद न करो
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = () => {
-    document.getElementById("noteText").value += "\n🎤 Listening...";
-  };
-
-  recognition.onresult = (event) => {
-    let transcript = "";
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      transcript += event.results[i][0].transcript + " ";
+    function resetFields() {
+      document.getElementById("noteText").value = "";
+      document.getElementById("tags").value = "";
+      document.getElementById("reminderTime").value = "";
+      document.getElementById("noteImage").value = "";
+      editIndex = -1;
     }
-    document.getElementById("noteText").value = transcript;
-  };
 
-  recognition.onerror = (event) => {
-    if (event.error === "no-speech") {
-      alert("⚠️ No speech detected. Please speak clearly into the mic.");
-    } else {
-      alert("⚠️ Error: " + event.error);
+    function startVoice() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("❌ Speech Recognition not supported. Use Chrome/Edge.");
+        return;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.interimResults = true;
+      recognition.continuous = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = (event) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript + " ";
+        }
+        document.getElementById("noteText").value = transcript;
+      };
+      recognition.start();
     }
-  };
 
-  recognition.onend = () => {
-    console.log("🎤 Voice recognition stopped.");
-  };
-
-  recognition.start();
-}
-
-
-
-    // 💾 Save Note
     function saveNote() {
       let text = document.getElementById("noteText").value.trim();
       let tags = document.getElementById("tags").value.trim().split(",").map(t=>t.trim()).filter(Boolean);
       let time = document.getElementById("reminderTime").value;
+      let imageFile = document.getElementById("noteImage").files[0];
 
       if(!text) return alert("Write something!");
       if(!time) return alert("Set a reminder!");
 
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          saveData(text, tags, time, e.target.result);
+        };
+        reader.readAsDataURL(imageFile);
+      } else {
+        saveData(text, tags, time, null);
+      }
+    }
+
+    function saveData(text, tags, time, image) {
       if(editIndex === -1){
-        let note = { text, tags, time, fav: false };
+        let note = { text, tags, time, fav: false, image };
         notes.push(note);
         scheduleReminder(note);
       } else {
-        notes[editIndex] = { text, tags, time, fav: notes[editIndex].fav };
+        notes[editIndex] = { text, tags, time, fav: notes[editIndex].fav, image };
         editIndex = -1;
       }
-
       localStorage.setItem("notes", JSON.stringify(notes));
-      displayNotes()
-      // 🔍 Search Function
-function searchNotes() {
-  let input = document.getElementById("searchInput").value.toLowerCase();
-  let notesDiv = document.getElementById("notes");
-  let noteCards = notesDiv.getElementsByClassName("note");
-
-  for (let i = 0; i < noteCards.length; i++) {
-    let text = noteCards[i].textContent.toLowerCase();
-    if (text.includes(input)) {
-      noteCards[i].style.display = "block";
-    } else {
-      noteCards[i].style.display = "none";
-    }
-  }
-}
-      document.getElementById("noteText").value="";
-      document.getElementById("tags").value="";
-      document.getElementById("reminderTime").value="";
+      displayNotes();
+      resetFields();
       alert("✅ Note saved!");
     }
 
-    // ⏰ Reminder Function
     function scheduleReminder(note) {
       let reminderTime = new Date(note.time).getTime();
       let now = new Date().getTime();
@@ -324,7 +341,6 @@ function searchNotes() {
       }
     }
 
-    // 📌 Display Notes
     function displayNotes() {
       let notesDiv = document.getElementById("notes");
       let favDiv = document.getElementById("favs");
@@ -337,6 +353,7 @@ function searchNotes() {
           <p>${n.text}</p>
           <p class="tags">Tags: ${n.tags.join(", ")||"None"}</p>
           <p class="tags">⏰ ${new Date(n.time).toLocaleString()}</p>
+          ${n.image ? `<img src="${n.image}" alt="Note Image" onclick="openImage('${n.image}')">` : ""}
           <button onclick="editNote(${i})">✏️ Edit</button>
           <button onclick="toggleFav(${i})">${n.fav?"⭐ Unfavourite":"☆ Favourite"}</button>
           <button onclick="deleteNote(${i})">🗑️ Delete</button>
@@ -345,7 +362,6 @@ function searchNotes() {
       });
     }
 
-    // ✏️ Edit Note
     function editNote(i){
       let n = notes[i];
       document.getElementById("noteText").value=n.text;
@@ -369,16 +385,25 @@ function searchNotes() {
       }
     }
 
-    // Reload notes + re-schedule reminders
+    function searchNotes() {
+      let input = document.getElementById("searchInput").value.toLowerCase();
+      let noteCards = document.getElementById("notes").getElementsByClassName("note");
+      for (let i = 0; i < noteCards.length; i++) {
+        let text = noteCards[i].textContent.toLowerCase();
+        noteCards[i].style.display = text.includes(input) ? "block" : "none";
+      }
+    }
+
+    function openImage(src) {
+      document.getElementById("fullImage").src = src;
+      document.getElementById("imgOverlay").style.display = "flex";
+    }
+    function closeImage() {
+      document.getElementById("imgOverlay").style.display = "none";
+    }
+
     notes.forEach(n=>scheduleReminder(n));
     displayNotes();
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
