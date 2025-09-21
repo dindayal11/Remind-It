@@ -178,11 +178,11 @@
   align-items: center;
   font-family: 'Courier New', Courier, monospace;
   font-size: 1.6rem;
-  background: linear-gradient(90deg, #ff6fd8, #3813c2, #00fff7);
+  background: linear-gradient(90deg, #ff6fd8, #1305db, #00fff7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   position: relative;
-  padding: 5px 10px;
+  padding: 5px 5px;
   border-radius: 12px;
   animation: textGlow 2s infinite alternate;
 }
@@ -206,14 +206,14 @@
   margin-right: 8px;
   font-size: 1.4rem;
   color: #ffdd00;
-  text-shadow: 0 0 5px #ffdd00, 0 0 10px #ff9900;
+  text-shadow: 0 0 1px #ffdd00, 0 0 1px #ff9900;
   animation: iconBounce 1.5s infinite;
 }
 
 @keyframes iconBounceSubtle {
   0% { transform: translateY(0); }
-  50% { transform: translateY(-2px) rotate(-1deg); } /* very mild movement */
-  100% { transform: translateY(0); }
+  10% { transform: translateY(-2px) rotate(-1deg); } /* very mild movement */
+  50% { transform: translateY(0); }
 }
 
 
@@ -428,4 +428,3 @@
   </script>
 </body>
 </html>
-
