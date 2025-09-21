@@ -143,6 +143,82 @@
       color: #fff;
       cursor: pointer;
     }
+    /* Neon Glow Animation for Home "Create Idea" Button */
+.neon-button {
+  position: relative;
+  background: #111;
+  color: #fff;
+  text-shadow: 0 0 5px #fff, 0 0 10px #ff00de, 0 0 20px #ff00de, 0 0 40px #ff00de;
+  box-shadow: 0 0 5px #fff, 0 0 10px #ff00de, 0 0 20px #ff00de, 0 0 40px #ff00de;
+  transition: all 0.3s ease-in-out;
+}
+
+.neon-button:hover {
+  text-shadow: 0 0 10px #fff, 0 0 20px #ff00de, 0 0 40px #ff00de, 0 0 80px #ff00de;
+  box-shadow: 0 0 10px #fff, 0 0 20px #ff00de, 0 0 40px #ff00de, 0 0 80px #ff00de;
+  transform: scale(1.1);
+}
+
+@keyframes neonPulse {
+  0%, 100% {
+    box-shadow: 0 0 5px #fff, 0 0 10px #ff00de, 0 0 20px #ff00de, 0 0 40px #ff00de;
+  }
+  50% {
+    box-shadow: 0 0 15px #fff, 0 0 30px #ff00de, 0 0 60px #ff00de, 0 0 120px #ff00de;
+  }
+}
+
+.neon-button {
+  animation: neonPulse 1.5s infinite alternate;
+}
+
+    /* Recent Notes heading container */
+#home h2.recent-glow {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.6rem;
+  background: linear-gradient(90deg, #ff6fd8, #3813c2, #00fff7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  padding: 5px 10px;
+  border-radius: 12px;
+  animation: textGlow 2s infinite alternate;
+}
+
+/* Neon Glow Pulse for text */
+@keyframes textGlow {
+  0% {
+    text-shadow: 0 0 5px #fff, 0 0 10px #ff6fd8, 0 0 20px #3813c2;
+  }
+  50% {
+    text-shadow: 0 0 15px #fff, 0 0 30px #ff6fd8, 0 0 50px #3813c2;
+  }
+  100% {
+    text-shadow: 0 0 5px #fff, 0 0 10px #ff6fd8, 0 0 20px #3813c2;
+  }
+}
+
+/* Style for the 🆕 icon */
+#home h2.recent-glow span.new-icon {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 1.4rem;
+  color: #ffdd00;
+  text-shadow: 0 0 5px #ffdd00, 0 0 10px #ff9900;
+  animation: iconBounce 1.5s infinite;
+}
+
+@keyframes iconBounceSubtle {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-2px) rotate(-1deg); } /* very mild movement */
+  100% { transform: translateY(0); }
+}
+
+
+
+
 
     @keyframes fadeIn { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
     @keyframes slideUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
@@ -169,9 +245,12 @@
     <h2>Welcome 🚀</h2>
     <div class="card">
       <p>✨ Save your thoughts, set reminders, and never lose an idea again.</p>
-      <button class="action" onclick="showPage('add')">➕ Create Idea</button>
+      <button class="action neon-button" onclick="showPage('add')">➕ Create Idea</button>
+
+
     </div>
-    <h2>🆕 Recent Notes</h2>
+    <h2 class="recent-glow">🆕 Recent Notes</h2>
+
     <div id="recentNotes"></div>
   </div>
 
