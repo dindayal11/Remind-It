@@ -282,22 +282,37 @@
       if (id === "home") showRecentNotes();
     }
 
-    function startVoice() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) return alert("❌ Speech Recognition not supported.");
-      const recognition = new SpeechRecognition();
-      recognition.lang = "en-US";
-      recognition.interimResults = true;
-      recognition.continuous = true;
-      recognition.onresult = (event) => {
-        let transcript = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript + " ";
-        }
-        document.getElementById("noteText").value = transcript;
-      };
-      recognition.start();
+   function startVoice() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return alert("❌ Speech Recognition not supported.");
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.interimResults = true;
+  recognition.continuous = true;
+
+  // Show listening indicator
+  const textarea = document.getElementById("noteText");
+  const originalText = textarea.value;
+  textarea.value = "🎙️ Listening...";
+  
+  recognition.onresult = (event) => {
+    let transcript = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript + " ";
     }
+    textarea.value = transcript; // replace with recognized text
+  };
+
+  recognition.onend = () => {
+    if (!textarea.value || textarea.value === "🎙️ Listening...") {
+      textarea.value = originalText; // restore if nothing recognized
+    }
+  };
+
+  recognition.start();
+}
+
 
     function saveNote() {
       let text = document.getElementById("noteText").value.trim();
@@ -445,3 +460,4 @@
   </script>
 </body>
 </html>
+
