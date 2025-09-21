@@ -14,18 +14,6 @@
       min-height: 100vh;
     }
 
-    .reset-btn {
-      background: #ffc107;
-      color: #000;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-    }
-    .reset-btn:hover {
-      background: #e0a800;
-    }
-
     header {
       display: flex;
       align-items: center;
@@ -35,13 +23,11 @@
       padding: 15px 20px;
       box-shadow: 0 3px 8px rgba(0,0,0,0.3);
     }
-
     header img {
       height: 150px;
       margin-right: 15px;
       animation: bounce 2s infinite;
     }
-
     header h1 {
       font-size: 1.8rem;
       margin: 0;
@@ -55,7 +41,6 @@
       background: rgba(255,255,255,0.2);
       backdrop-filter: blur(6px);
     }
-
     nav button {
       padding: 10px 20px;
       border: none;
@@ -66,22 +51,14 @@
       cursor: pointer;
       transition: transform 0.2s, background 0.3s;
     }
-
     nav button:hover {
       background: #007BFF;
       color: #fff;
       transform: scale(1.1);
     }
 
-    .page {
-      display: none;
-      padding: 20px;
-      animation: fadeIn 0.5s ease-in-out;
-    }
-
-    .active {
-      display: block;
-    }
+    .page { display: none; padding: 20px; animation: fadeIn 0.5s ease-in-out; }
+    .active { display: block; }
 
     h2 {
       text-align: center;
@@ -98,11 +75,9 @@
       border-radius: 15px;
       box-shadow: 0 6px 15px rgba(0,0,0,0.2);
       transition: transform 0.3s;
+      text-align: center;
     }
-
-    .card:hover {
-      transform: translateY(-5px);
-    }
+    .card:hover { transform: translateY(-5px); }
 
     textarea, input {
       width: 100%;
@@ -124,10 +99,7 @@
       cursor: pointer;
       transition: transform 0.3s;
     }
-
-    button.action:hover {
-      transform: scale(1.1);
-    }
+    button.action:hover { transform: scale(1.1); }
 
     .note {
       margin: 15px 0;
@@ -137,17 +109,9 @@
       border-radius: 10px;
       animation: slideUp 0.5s ease;
     }
+    .note p { margin: 5px 0; }
+    .tags { font-size: 0.9rem; color: #555; }
 
-    .note p {
-      margin: 5px 0;
-    }
-
-    .tags {
-      font-size: 0.9rem;
-      color: #555;
-    }
-
-    /* Thumbnail images */
     .note img {
       max-width: 180px;
       max-height: 150px;
@@ -156,11 +120,8 @@
       cursor: pointer;
       transition: transform 0.3s;
     }
-    .note img:hover {
-      transform: scale(1.05);
-    }
+    .note img:hover { transform: scale(1.05); }
 
-    /* Fullscreen overlay */
     #imgOverlay {
       display: none;
       position: fixed;
@@ -183,32 +144,19 @@
       cursor: pointer;
     }
 
-    /* Animations */
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(20px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-    @keyframes slideUp {
-      from {opacity: 0; transform: translateY(20px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
+    @keyframes fadeIn { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+    @keyframes slideUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+    @keyframes bounce { 0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);} }
   </style>
 </head>
 <body>
-  <!-- Notification Sound -->
   <audio id="notifySound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3" preload="auto"></audio>
 
-  <!-- Header -->
   <header>
     <img src="photo.png" alt="Logo">
     <h1>💡 My Ideas Smart Notebook</h1>
   </header>
 
-  <!-- Navigation -->
   <nav>
     <button onclick="showPage('home')">🏠 Home</button>
     <button onclick="showPage('add')">➕ Add Idea</button>
@@ -216,14 +164,18 @@
     <button onclick="showPage('favourites')">⭐ Favourites</button>
   </nav>
 
-  <!-- Pages -->
+  <!-- Home Page -->
   <div id="home" class="page active">
     <h2>Welcome 🚀</h2>
     <div class="card">
       <p>✨ Save your thoughts, set reminders, and never lose an idea again.</p>
+      <button class="action" onclick="showPage('add')">➕ Create Idea</button>
     </div>
+    <h2>🆕 Recent Notes</h2>
+    <div id="recentNotes"></div>
   </div>
 
+  <!-- Add Idea Page -->
   <div id="add" class="page">
     <h2>Add a New Idea</h2>
     <div class="card">
@@ -233,22 +185,23 @@
       <input type="file" id="noteImage" accept="image/*">
       <button class="action" onclick="startVoice()">🎤 Speak</button>
       <button class="action" onclick="saveNote()">💾 Save Idea</button>
-      <button class="reset-btn" onclick="resetFields()">♻️ Reset</button>
     </div>
   </div>
 
+  <!-- Ideas Page -->
   <div id="ideas" class="page">
     <h2>Your Ideas</h2>
     <input type="text" id="searchInput" placeholder="Search your ideas..." onkeyup="searchNotes()">
     <div id="notes"></div>
   </div>
 
+  <!-- Favourites Page -->
   <div id="favourites" class="page">
     <h2>⭐ Favourite Ideas</h2>
     <div id="favs"></div>
   </div>
 
-  <!-- Fullscreen Image Overlay -->
+  <!-- Fullscreen Image -->
   <div id="imgOverlay" onclick="closeImage()">
     <span>&times;</span>
     <img id="fullImage" src="">
@@ -261,28 +214,16 @@
     function showPage(id) {
       document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
       document.getElementById(id).classList.add("active");
-    }
-
-    function resetFields() {
-      document.getElementById("noteText").value = "";
-      document.getElementById("tags").value = "";
-      document.getElementById("reminderTime").value = "";
-      document.getElementById("noteImage").value = "";
-      editIndex = -1;
+      if (id === "home") showRecentNotes();
     }
 
     function startVoice() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert("❌ Speech Recognition not supported. Use Chrome/Edge.");
-        return;
-      }
+      if (!SpeechRecognition) return alert("❌ Speech Recognition not supported.");
       const recognition = new SpeechRecognition();
       recognition.lang = "en-US";
       recognition.interimResults = true;
       recognition.continuous = true;
-      recognition.maxAlternatives = 1;
-
       recognition.onresult = (event) => {
         let transcript = "";
         for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -300,13 +241,25 @@
       let imageFile = document.getElementById("noteImage").files[0];
 
       if(!text) return alert("Write something!");
-      if(!time) return alert("Set a reminder!");
+
+     if(!time) {
+  let defaultTime = new Date();
+  defaultTime.setHours(defaultTime.getHours() + 24);
+
+  // Local time को सही format में डालना
+  let year = defaultTime.getFullYear();
+  let month = String(defaultTime.getMonth() + 1).padStart(2, '0');
+  let day = String(defaultTime.getDate()).padStart(2, '0');
+  let hours = String(defaultTime.getHours()).padStart(2, '0');
+  let minutes = String(defaultTime.getMinutes()).padStart(2, '0');
+
+  time = `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 
       if (imageFile) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-          saveData(text, tags, time, e.target.result);
-        };
+        reader.onload = e => saveData(text, tags, time, e.target.result);
         reader.readAsDataURL(imageFile);
       } else {
         saveData(text, tags, time, null);
@@ -319,23 +272,20 @@
         notes.push(note);
         scheduleReminder(note);
       } else {
-        notes[editIndex] = { text, tags, time, fav: notes[editIndex].fav, image };
+        notes[editIndex] = { ...notes[editIndex], text, tags, time, image };
         editIndex = -1;
       }
       localStorage.setItem("notes", JSON.stringify(notes));
       displayNotes();
-      resetFields();
+      showRecentNotes();
       alert("✅ Note saved!");
     }
 
     function scheduleReminder(note) {
-      let reminderTime = new Date(note.time).getTime();
-      let now = new Date().getTime();
-      let delay = reminderTime - now;
+      let delay = new Date(note.time).getTime() - Date.now();
       if (delay > 0) {
         setTimeout(() => {
-          let sound = document.getElementById("notifySound");
-          sound.play();
+          document.getElementById("notifySound").play();
           alert("⏰ Reminder: " + note.text);
         }, delay);
       }
@@ -347,13 +297,13 @@
       notesDiv.innerHTML="";
       favDiv.innerHTML="";
       notes.forEach((n,i)=>{
-        let card = document.createElement("div");
+        let card=document.createElement("div");
         card.className="note";
         card.innerHTML=`
           <p>${n.text}</p>
           <p class="tags">Tags: ${n.tags.join(", ")||"None"}</p>
           <p class="tags">⏰ ${new Date(n.time).toLocaleString()}</p>
-          ${n.image ? `<img src="${n.image}" alt="Note Image" onclick="openImage('${n.image}')">` : ""}
+          ${n.image?`<img src="${n.image}" onclick="openImage('${n.image}')">`:""}
           <button onclick="editNote(${i})">✏️ Edit</button>
           <button onclick="toggleFav(${i})">${n.fav?"⭐ Unfavourite":"☆ Favourite"}</button>
           <button onclick="deleteNote(${i})">🗑️ Delete</button>
@@ -362,48 +312,39 @@
       });
     }
 
+    function showRecentNotes() {
+      let recentDiv=document.getElementById("recentNotes");
+      recentDiv.innerHTML="";
+      let recent=notes.slice(-3).reverse(); // last 3
+      if(recent.length===0){recentDiv.innerHTML="<p>No recent notes.</p>";return;}
+      recent.forEach(n=>{
+        let card=document.createElement("div");
+        card.className="note";
+        card.innerHTML=`
+          <p>${n.text.substring(0,50)}${n.text.length>50?"...":""}</p>
+          <p class="tags">⏰ ${new Date(n.time).toLocaleString()}</p>
+          ${n.image?`<img src="${n.image}" style="max-width:100px;">`:""}
+        `;
+        recentDiv.appendChild(card);
+      });
+    }
+
     function editNote(i){
-      let n = notes[i];
+      let n=notes[i];
       document.getElementById("noteText").value=n.text;
       document.getElementById("tags").value=n.tags.join(", ");
       document.getElementById("reminderTime").value=n.time;
-      showPage('add');
-      editIndex=i;
+      showPage('add'); editIndex=i;
     }
-
-    function toggleFav(i){
-      notes[i].fav=!notes[i].fav;
-      localStorage.setItem("notes", JSON.stringify(notes));
-      displayNotes();
-    }
-
-    function deleteNote(i){
-      if(confirm("Delete this note?")){
-        notes.splice(i,1);
-        localStorage.setItem("notes", JSON.stringify(notes));
-        displayNotes();
-      }
-    }
-
-    function searchNotes() {
-      let input = document.getElementById("searchInput").value.toLowerCase();
-      let noteCards = document.getElementById("notes").getElementsByClassName("note");
-      for (let i = 0; i < noteCards.length; i++) {
-        let text = noteCards[i].textContent.toLowerCase();
-        noteCards[i].style.display = text.includes(input) ? "block" : "none";
-      }
-    }
-
-    function openImage(src) {
-      document.getElementById("fullImage").src = src;
-      document.getElementById("imgOverlay").style.display = "flex";
-    }
-    function closeImage() {
-      document.getElementById("imgOverlay").style.display = "none";
-    }
+    function toggleFav(i){notes[i].fav=!notes[i].fav;localStorage.setItem("notes",JSON.stringify(notes));displayNotes();}
+    function deleteNote(i){if(confirm("Delete this note?")){notes.splice(i,1);localStorage.setItem("notes",JSON.stringify(notes));displayNotes();showRecentNotes();}}
+    function searchNotes(){let q=document.getElementById("searchInput").value.toLowerCase();document.querySelectorAll("#notes .note").forEach(c=>{c.style.display=c.textContent.toLowerCase().includes(q)?"block":"none";});}
+    function openImage(src){document.getElementById("fullImage").src=src;document.getElementById("imgOverlay").style.display="flex";}
+    function closeImage(){document.getElementById("imgOverlay").style.display="none";}
 
     notes.forEach(n=>scheduleReminder(n));
     displayNotes();
+    showRecentNotes();
   </script>
 </body>
 </html>
